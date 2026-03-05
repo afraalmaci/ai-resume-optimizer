@@ -8,7 +8,6 @@ type Props = {
   steps: React.ReactNode[];
   onFinish?: () => void;
 };
-
 export default function MultiStepForm({ steps, onFinish }: Props) {
   const { step, next, back, currentStepIndex } = useMultiStepForm(steps);
   const [loading, setLoading] = useState(false);
@@ -19,8 +18,9 @@ export default function MultiStepForm({ steps, onFinish }: Props) {
   const handleFinish = async () => {
     try {
       setLoading(true);
-      await new Promise((res) => setTimeout(res, 800));
-      toast.success("Form successfully submitted!");
+      await new Promise((res) => setTimeout(res, 500)); // Simülasyon
+      toast.success("Form successfully submitted!"); // Toast burada
+      console.log("Form workflow finished!");
       if (onFinish) onFinish();
     } catch (err) {
       toast.error("Something went wrong!");
@@ -31,19 +31,9 @@ export default function MultiStepForm({ steps, onFinish }: Props) {
 
   return (
     <div>
-      {/* Step component */}
       <div style={{ marginBottom: 20 }}>{step}</div>
 
-      {/* Button container */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: 10,
-          marginTop: 10,
-        }}
-      >
-        {/* Back button */}
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
         {!isFirstStep ? (
           <button onClick={back} disabled={loading} style={{ marginRight: "auto" }}>
             Back
@@ -52,7 +42,6 @@ export default function MultiStepForm({ steps, onFinish }: Props) {
           <div />
         )}
 
-        {/* Next / Finish button */}
         {!isLastStep ? (
           <button onClick={next} disabled={loading} style={{ marginLeft: "auto" }}>
             Next
@@ -64,8 +53,6 @@ export default function MultiStepForm({ steps, onFinish }: Props) {
         )}
       </div>
 
-      {/* Toast container */}
-      <Toaster position="top-right" />
     </div>
   );
 }
