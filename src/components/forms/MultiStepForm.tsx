@@ -6,6 +6,8 @@ import { MultiStepFormProps } from "@/types/form.types";
 import { toast } from "react-hot-toast";
 import styles from "@/styles/MultiStepForm.module.css";
 
+import { motion, AnimatePresence } from "framer-motion";
+
 export default function MultiStepForm({ steps }: MultiStepFormProps) {
   const { step, next, back, currentStepIndex } = useMultiStepForm(steps);
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,18 @@ export default function MultiStepForm({ steps }: MultiStepFormProps) {
 
   return (
     <div className={styles.container}>
-      <div>{step}</div>
+      
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentStepIndex}
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -40 }}
+          transition={{ duration: 0.25 }}
+        >
+          {step}
+        </motion.div>
+      </AnimatePresence>
 
       <div className={styles.footer}>
         {!isFirstStep ? (
