@@ -1,28 +1,23 @@
 "use client";
+
 import React from "react";
 import { useResumeUpload } from "@/hooks/useResumeUpload";
-import { ResumeUploadProps } from "@/types/form.types";
 import styles from "@/styles/ResumeUpload.module.css";
+
+interface ResumeUploadProps {
+  onUpload: (file: File) => void;
+}
 
 export default function ResumeUpload({ onUpload }: ResumeUploadProps) {
   const { file, loading, removeFile, getRootProps, getInputProps, isDragActive } =
     useResumeUpload();
 
   React.useEffect(() => {
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const text = reader.result as string;
-      if (onUpload) onUpload(text);
-    };
-
-    reader.readAsText(file); // TODO : pdf parsing -> add  pdf lib 
+    if (file && onUpload) onUpload(file); // File'i direkt gönderiyoruz
   }, [file, onUpload]);
 
   return (
     <div>
-      {/* Drag & Drop */}
       <div
         {...getRootProps()}
         className={`${styles.dropzone} ${isDragActive ? styles.dropzoneActive : ""}`}
@@ -40,7 +35,6 @@ export default function ResumeUpload({ onUpload }: ResumeUploadProps) {
         )}
       </div>
 
-      {/* File info + remove */}
       {file && !loading && (
         <div className={styles.fileInfo}>
           <span>{file.name}</span>

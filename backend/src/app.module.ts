@@ -4,8 +4,10 @@ import { AppService } from './app.service';
 import { AnalysisModule } from './analysis/analysis.module';
 
 @Module({
-  imports: [AnalysisModule],
+  imports: [ AnalysisModule],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+
+

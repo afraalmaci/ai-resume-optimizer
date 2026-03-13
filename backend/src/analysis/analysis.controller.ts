@@ -1,24 +1,67 @@
-import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
-import { AnalysisService } from './analysis.service';
-import { CreateAnalysisDto } from './dto/create-analysis.dto';
-
-@Controller('analysis')
+import {
+  Controller,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+  Body,
+} from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { getDocumentProxy, extractText } from "unpdf";
+import { extractSkills } from "./engine/skill-extractor";
+import { normalizeSkill } from "./engine/skill-normalizer";
+import { calculateATSScore } from "./engine/ats-scorer";
+@Controller("analysis")
 export class AnalysisController {
-  constructor(private readonly analysisService: AnalysisService) {}
-
   @Post()
-  async create(@Body() createAnalysisDto: CreateAnalysisDto) {
-    try {
-      const { resume, jobDescription } = createAnalysisDto;
-      const result = await this.analysisService.analyzeResume(resume, jobDescription);
-      return { result };
-    } catch (error) {
-      throw new HttpException('Analysis failed', HttpStatus.INTERNAL_SERVER_ERROR);
+  @UseInterceptors(FileInterceptor("resume"))
+  async analyzeResume(
+    @UploadedFile() file: Express.Multer.File,
+    @Body("jobDescription") jobDescription: string
+  ) {
+    if (!file) throw new Error("No file uploaded");
+
+    // ===== PDF PARSE =====
+    const pdfProxy = await getDocumentProxy(new Uint8Array(file.buffer));
+    const result = await extractText(pdfProxy, { mergePages: true });
+
+    let resumeText = "";
+
+    if (typeof result.text === "string") {
+      resumeText = result.text;
+    } else if (Array.isArray(result.text)) {
+      resumeText = (result.text as string[]).join("\n");
     }
-  }
 
-  @Post()
-  async analyze(@Body() body: { resume: string; jobDescription: string }) {
-    return await this.analysisService.analyzeResume(body.resume, body.jobDescription);
+    console.log("===== DEBUG =====");
+    console.log("Resume Text:", resumeText.slice(0, 500));
+    console.log("Job Description:", jobDescription);
+
+    // ===== SKILL EXTRACTION =====
+    const resumeSkillsRaw = extractSkills(resumeText);
+    const jobSkillsRaw = extractSkills(jobDescription);
+
+    console.log("Raw resume skills:", resumeSkillsRaw);
+    console.log("Raw job skills:", jobSkillsRaw);
+
+    // ===== NORMALIZATION =====
+    const resumeSkills = resumeSkillsRaw.map((s) => normalizeSkill(s));
+    const jobSkills = jobSkillsRaw.map((s) => normalizeSkill(s));
+
+    console.log("Normalized resume skills:", resumeSkills);
+    console.log("Normalized job skills:", jobSkills);
+
+    // ===== ATS SCORE ENGINE =====
+    const atsResult = calculateATSScore(jobSkills, resumeSkills);
+
+    console.log("ATS Result:", atsResult);
+    console.log("=================");
+
+    return {
+      score: atsResult.score,
+      resumeSkills,
+      jobSkills,
+      missingSkills: atsResult.missingSkills,
+      matches: atsResult.matches,
+    };
   }
 }
