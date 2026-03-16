@@ -1,22 +1,14 @@
-# AI Resume Optimizer
+# ATS Resume Optimizer
 
-An AI-powered web application that analyzes resumes and provides actionable feedback to improve job application success rates.
+> Intelligent resume analysis tool with semantic skill matching, ATS scoring, and interactive multi-step form. Built with **React**, **NestJS**, and **TypeScript**.
 
-## Demo
+---
+## 🖥️ Tech Stack
 
-Live Demo: 
-
-![Demo GIF]
-
-## Tech Stack
-
-- Next.js 14 (App Router)
-- TypeScript
-- TailwindCSS
-- Zustand
-- React Hook Form
-- Playwright (E2E Testing)
-- Vitest + Testing Library
+- **Frontend:** React 18, Next.js 13, TypeScript, framer-motion
+- **Backend:** NestJS, TypeScript, Multer, unpdf
+- **Styling:** TailwindCSS
+- **Testing:** Vitest / Playwright (E2E Testing)
 
 ## Features
 
@@ -28,25 +20,6 @@ Live Demo:
 - Toast notifications
 - Unit tests
 - End-to-end tests
-
-## Architecture
-
-src
- ┣ components
- ┣ hooks
- ┣ store
- ┣ lib
- ┗ tests
-
- ## Installation
-
-git clone https://github.com/afraalmaci/ai-resume-optimizer
-
-cd ai-resume-optimizer
-
-npm install
-
-npm run dev
 
 ## Testing
 
@@ -60,8 +33,5 @@ npx playwright test
 
 ## Future Improvements
 
-- OpenAI integration
-- Resume PDF upload
-- ATS score system
 - Authentication
 - Resume export
